@@ -96,6 +96,11 @@ class _NominationPageState extends State<NominationPage> {
 
       if (!isNominationActive) {
         Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'The nomination has ended. Please go to the voting page.')),
+        );
       }
     });
   }
@@ -180,9 +185,34 @@ class _NominationPageState extends State<NominationPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Step 1: Upload image to Supabase storage
+      final String userName = _nameController.text;
+
+      // Step 1: Check if the same user_name has been added within the last 30 minutes
+      final recentNomineeResponse = await _supabaseClient
+          .from('tbl_nominees')
+          .select('nominee_time')
+          .eq('nominee_name', userName)
+          .gt(
+            'nominee_time',
+            DateTime.now()
+                .toUtc()
+                .add(Duration(hours: 8))
+                .subtract(Duration(minutes: 30))
+                .toIso8601String(),
+          );
+
+      if (recentNomineeResponse.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'This nominee was already added within the last 30 minutes.')),
+        );
+        return;
+      }
+
+      // Step 2: Upload image to Supabase storage
       final String imageName =
-          '${_nameController.text}_${DateTime.now().millisecondsSinceEpoch}.png';
+          '${userName}_${DateTime.now().millisecondsSinceEpoch}.png';
       final String imagePath = imageName;
 
       await _supabaseClient.storage.from('nominee-images').uploadBinary(
@@ -191,16 +221,16 @@ class _NominationPageState extends State<NominationPage> {
             fileOptions: FileOptions(contentType: 'image/png'),
           );
 
-      // Step 2: Get the public URL of the uploaded image
+      // Step 3: Get the public URL of the uploaded image
       final String imageUrl = _supabaseClient.storage
           .from('nominee-images')
           .getPublicUrl(imagePath);
 
-      // Step 3: Get the selected user's gender from the tbl_users table
+      // Step 4: Get the selected user's gender from the tbl_users table
       final userResponse = await _supabaseClient
           .from('tbl_users')
           .select('user_gender')
-          .eq('user_name', _nameController.text)
+          .eq('user_name', userName)
           .single();
 
       if (userResponse.isEmpty || userResponse['user_gender'] == null) {
@@ -209,12 +239,12 @@ class _NominationPageState extends State<NominationPage> {
 
       String nomineeGender = userResponse['user_gender'];
 
-      // Step 4: Insert the nominee data into the tbl_nominees table
+      // Step 5: Insert the nominee data into the tbl_nominees table
       String currentTime = DateFormat('yyyy-MM-dd HH:mm:ss')
           .format(DateTime.now().toUtc().add(Duration(hours: 8)));
 
       await _supabaseClient.from('tbl_nominees').insert({
-        'nominee_name': _nameController.text,
+        'nominee_name': userName,
         'nominee_image': imageUrl,
         'nominee_gender': nomineeGender,
         'nominee_time': currentTime,

@@ -58,7 +58,7 @@ class _AdminPageState extends State<AdminPage> {
 
   Future<void> _startNominationSession() async {
     final now = DateTime.now();
-    final endTime = now.add(Duration(minutes: 1));
+    final endTime = now.add(Duration(minutes: 15));
     Map<String, dynamic> data = {
       'session_nominationStart': now.toIso8601String(),
       'session_nominationEnd': endTime.toIso8601String(),
@@ -69,7 +69,6 @@ class _AdminPageState extends State<AdminPage> {
           .from('tbl_sessions')
           .update(data)
           .eq('session_id', 1); // Update the row where id is 1
-      print('Server response: $response');
       if (response == null) {
         setState(() {
           _nominationStartTime = now;
@@ -85,7 +84,7 @@ class _AdminPageState extends State<AdminPage> {
 
   Future<void> _startVotingSession() async {
     final now = DateTime.now();
-    final endTime = now.add(Duration(seconds: 30));
+    final endTime = now.add(Duration(minutes: 45));
     Map<String, dynamic> data = {
       'session_votingStart': now.toIso8601String(),
       'session_votingEnd': endTime.toIso8601String(),
@@ -96,7 +95,6 @@ class _AdminPageState extends State<AdminPage> {
           .from('tbl_sessions')
           .update(data)
           .eq('session_id', 1);
-      print('Server response: ${response.data}');
       if (response == null) {
         setState(() {
           _votingStartTime = now;
@@ -121,7 +119,6 @@ class _AdminPageState extends State<AdminPage> {
           .from('tbl_sessions')
           .update(data)
           .eq('session_id', 1);
-      print('Server response: ${response.data}');
       if (response == null) {
         setState(() {
           _nominationStartTime = null;
@@ -146,8 +143,6 @@ class _AdminPageState extends State<AdminPage> {
           .from('tbl_sessions')
           .update(data)
           .eq('session_id', 1); // Update the row where id is 1
-
-      print('Server response: ${response.data}');
       if (response == null) {
         setState(() {
           _votingStartTime = null;

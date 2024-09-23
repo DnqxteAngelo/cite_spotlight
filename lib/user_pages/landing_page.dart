@@ -3,6 +3,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cite_spotlight/session/session_service.dart';
 import 'package:cite_spotlight/user_pages/nomination_page.dart';
+import 'package:cite_spotlight/user_pages/voting_page.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {
@@ -73,11 +74,11 @@ class _LandingPageState extends State<LandingPage> {
     await _checkSessionStatus();
 
     if (_isVotingSessionActive) {
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //       builder: (context) => VotePage(userId: widget.userId)),
-      // );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => VotingPage(userId: widget.userId)),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -234,7 +235,7 @@ class _LandingPageState extends State<LandingPage> {
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: _handleVoteButtonPressed,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green.shade600,
 
