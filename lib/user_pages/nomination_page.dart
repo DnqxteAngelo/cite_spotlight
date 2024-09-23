@@ -203,9 +203,7 @@ class _NominationPageState extends State<NominationPage> {
 
       if (recentNomineeResponse.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'This nominee was already added within the last 30 minutes.')),
+          SnackBar(content: Text('This nominee was already added.')),
         );
         return;
       }
@@ -248,7 +246,7 @@ class _NominationPageState extends State<NominationPage> {
         'nominee_image': imageUrl,
         'nominee_gender': nomineeGender,
         'nominee_time': currentTime,
-        'nominee_userId': widget.userId,
+        'nominee_userid': widget.userId,
       });
 
       setState(() {

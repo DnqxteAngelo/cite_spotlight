@@ -121,33 +121,35 @@ class _VotingPageState extends State<VotingPage> {
 
       final String nomineeGender = genderResponse['nominee_gender'];
 
-      // Step 2: Check if the user has already voted for this gender within the last 30 minutes
-      final checkResponse = await Supabase.instance.client
-          .from('tbl_votes')
-          .select('tbl_nominees(nominee_gender)')
-          .eq('vote_userId', userId)
-          .eq('tbl_nominees.nominee_gender',
-              nomineeGender) // Check if the same gender
-          .gt(
-              'vote_time',
-              DateTime.now()
-                  .toUtc()
-                  .add(Duration(hours: 8)) // Adjust to your timezone
-                  .subtract(Duration(minutes: 40))
-                  .toIso8601String());
+      print(nomineeGender);
 
-      if (checkResponse.isNotEmpty) {
-        _showSnackBar('You have already voted for this gender.');
+      // Step 2: Check if the user has already voted for this gender within the last 30 minutes
+      final checkResponse =
+          await Supabase.instance.client.rpc('check_recent_votes', params: {
+        'p_gender': nomineeGender,
+        'p_user_id': userId,
+      });
+
+      if (checkResponse == null) {
+        _showSnackBar('Error checking recent votes.');
+        return;
+      }
+
+      int recentVotes = checkResponse[0]['count'];
+
+      if (recentVotes > 0) {
+        _showSnackBar('You already voted for the $nomineeGender.');
         return;
       }
 
       // Step 3: Proceed with voting
       final voteResponse =
           await Supabase.instance.client.from('tbl_votes').insert({
-        'vote_nomineeId': nominee.id,
+        'vote_nomineeid':
+            nominee.id, // Ensure this matches the database column name
         'vote_time':
             DateTime.now().toUtc().add(Duration(hours: 8)).toIso8601String(),
-        'vote_userId': userId,
+        'vote_userid': userId,
       });
 
       if (voteResponse == null) {
