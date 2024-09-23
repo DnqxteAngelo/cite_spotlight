@@ -291,7 +291,7 @@ class _VotingPageState extends State<VotingPage> {
               ),
             ),
           ),
-          SizedBox(height: 25),
+          SizedBox(height: 15),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -371,7 +371,7 @@ class _VotingPageState extends State<VotingPage> {
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
-                                            SizedBox(height: 15),
+                                            SizedBox(height: 10),
                                             AnimatedOpacity(
                                               duration:
                                                   Duration(milliseconds: 300),
@@ -392,7 +392,7 @@ class _VotingPageState extends State<VotingPage> {
                                                           FontWeight.w800,
                                                     ),
                                                   ),
-                                                  SizedBox(height: 15),
+                                                  SizedBox(height: 10),
                                                   ElevatedButton(
                                                     onPressed: isActive
                                                         ? () {
