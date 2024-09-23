@@ -1,7 +1,8 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:animate_do/animate_do.dart';
-import 'package:cite_spotlight/pages/landing_page.dart';
+import 'package:cite_spotlight/admin_pages/admin_page.dart';
+import 'package:cite_spotlight/user_pages/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -71,19 +72,33 @@ class _LoginPageState extends State<LoginPage> {
       // Check if a user was found
       if (response.isNotEmpty) {
         // Login successful
-        final userName =
-            response['user_name']; // Get the user_name from the response
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Login successful! Welcome, $userName')), // Display user_name
-        );
-        // Navigate to the next screen or perform desired action
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => LandingPage()), // Add LandingPage
-        );
+        final userName = response['user_name'];
+        final userId = response['user_id'];
+
+        // Check if the user is admin
+        if (studentId == "admin") {
+          // Navigate to AdminPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AdminPage()), // Add AdminPage
+          );
+        } else {
+          // Navigate to LandingPage for regular users
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Login successful!\nWelcome, $userName')), // Display user_name
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LandingPage(
+                userId: userId,
+              ),
+            ), // Add LandingPage
+          );
+        }
       } else {
         // Invalid credentials
         ScaffoldMessenger.of(context).showSnackBar(

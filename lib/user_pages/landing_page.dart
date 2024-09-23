@@ -1,17 +1,92 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, avoid_print, use_key_in_widget_constructors
 
 import 'package:animate_do/animate_do.dart';
-import 'package:cite_spotlight/pages/nomination_page.dart';
+import 'package:cite_spotlight/session/session_service.dart';
+import 'package:cite_spotlight/user_pages/nomination_page.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {
-  const LandingPage({Key? key}) : super(key: key);
+  final int userId;
+
+  LandingPage({
+    required this.userId,
+  });
 
   @override
   _LandingPageState createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
+  final SessionService _sessionService = SessionService();
+
+  bool _isNominationSessionActive = false;
+  bool _isVotingSessionActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSessionStatus();
+  }
+
+  Future<void> _checkSessionStatus() async {
+    try {
+      final isNominationActive =
+          await _sessionService.isWithinNominationSession();
+      final isVotingActive = await _sessionService.isWithinVotingSession();
+
+      setState(() {
+        _isNominationSessionActive = isNominationActive;
+        _isVotingSessionActive = isVotingActive;
+      });
+
+      print('Nomination is ${isNominationActive ? 'active' : 'inactive'}');
+      print('Voting is ${isVotingActive ? 'active' : 'inactive'}');
+    } catch (e) {
+      print('Error checking session status: $e');
+      // Handle the error appropriately, e.g., show an error message to the user
+    }
+  }
+
+  Future<void> _handleNominateButtonPressed() async {
+    await _checkSessionStatus();
+
+    if (_isNominationSessionActive) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NominationPage(
+            userId: widget.userId,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "The nomination hasn't started or the nomination has ended."),
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleVoteButtonPressed() async {
+    await _checkSessionStatus();
+
+    if (_isVotingSessionActive) {
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //       builder: (context) => VotePage(userId: widget.userId)),
+      // );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("The voting hasn't started or the voting has ended."),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -120,14 +195,7 @@ class _LandingPageState extends State<LandingPage> {
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: OutlinedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              NominationPage()), // Add LandingPage
-                                    );
-                                  },
+                                  onPressed: _handleNominateButtonPressed,
                                   style: OutlinedButton.styleFrom(
                                     side: BorderSide(
                                         width: 4.0,

@@ -1,7 +1,10 @@
-// ignore_for_file: use_super_parameters, library_private_types_in_public_api, prefer_const_constructors, avoid_print
+// ignore_for_file: use_super_parameters, library_private_types_in_public_api, prefer_const_constructors, avoid_print, use_build_context_synchronously
+
+import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
-import 'package:cite_spotlight/pages/camera_page.dart';
+import 'package:cite_spotlight/session/session_service.dart';
+import 'package:cite_spotlight/user_pages/camera_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // import 'package:file_picker/file_picker.dart';
@@ -12,13 +15,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart'; // For date formatting
 
 class NominationPage extends StatefulWidget {
-  const NominationPage({Key? key}) : super(key: key);
+  final int userId;
+
+  NominationPage({
+    required this.userId,
+  });
 
   @override
   _NominationPageState createState() => _NominationPageState();
 }
 
 class _NominationPageState extends State<NominationPage> {
+  final SessionService _sessionService = SessionService();
   bool _isLoading = false;
   // String _gender = 'Male';
   final TextEditingController _nameController = TextEditingController();
@@ -27,10 +35,69 @@ class _NominationPageState extends State<NominationPage> {
   final SupabaseClient _supabaseClient = Supabase.instance.client;
   List<String> _userNames = [];
 
+  Timer? _timer;
+  DateTime? _nominationEndTime;
+
   @override
   void initState() {
     super.initState();
     _fetchUserNames();
+    _loadNominationEndTime();
+    _startSessionCheckTimer();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadNominationEndTime() async {
+    final times = await _sessionService.loadNominationTimes();
+    setState(() {
+      _nominationEndTime = times['end'];
+    });
+  }
+
+  String _getNominationRemainingTime() {
+    if (_nominationEndTime == null) return "No Session";
+
+    final now = DateTime.now().toUtc().add(Duration(hours: 8));
+    final difference = _nominationEndTime!.difference(now);
+
+    if (difference.isNegative) return "Ended";
+
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes % 60;
+    final seconds = difference.inSeconds % 60;
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        // If the widget is not mounted, stop the timer.
+        _timer?.cancel();
+        return;
+      }
+
+      setState(() {});
+    });
+  }
+
+  void _startSessionCheckTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (!mounted) return;
+      bool isNominationActive =
+          await _sessionService.isWithinNominationSession();
+
+      if (!isNominationActive) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   Future<void> _fetchUserNames() async {
@@ -104,7 +171,9 @@ class _NominationPageState extends State<NominationPage> {
 
   Future<void> _addNominee() async {
     if (_nameController.text.isEmpty || _imageBytes == null) {
-      print('Nominee name or image is missing');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nominee name or image is missing')),
+      );
       return;
     }
 
@@ -141,14 +210,15 @@ class _NominationPageState extends State<NominationPage> {
       String nomineeGender = userResponse['user_gender'];
 
       // Step 4: Insert the nominee data into the tbl_nominees table
-      String currentTime =
-          DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      String currentTime = DateFormat('yyyy-MM-dd HH:mm:ss')
+          .format(DateTime.now().toUtc().add(Duration(hours: 8)));
 
       await _supabaseClient.from('tbl_nominees').insert({
         'nominee_name': _nameController.text,
         'nominee_image': imageUrl,
         'nominee_gender': nomineeGender,
         'nominee_time': currentTime,
+        'nominee_userId': widget.userId,
       });
 
       setState(() {
@@ -156,9 +226,13 @@ class _NominationPageState extends State<NominationPage> {
         _nameController.clear(); // Clear the name input
       });
 
-      print('Nominee added successfully!');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nominee added successfully!')),
+      );
     } catch (e) {
-      print('Error adding nominee: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding nominee: $e')),
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -208,7 +282,7 @@ class _NominationPageState extends State<NominationPage> {
                   FadeInRight(
                     duration: Duration(milliseconds: 1000),
                     child: Text(
-                      'Time Remaining: }',
+                      'Time Remaining: ${_getNominationRemainingTime()}',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize:
