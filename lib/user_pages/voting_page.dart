@@ -82,8 +82,6 @@ class _VotingPageState extends State<VotingPage> {
           .from('tbl_nominees') // Use your actual table name
           .select();
 
-      print(response);
-
       if (response.isNotEmpty) {
         final List<dynamic> data = response;
         final now = DateTime.now().toUtc().add(Duration(hours: 8));
@@ -120,8 +118,6 @@ class _VotingPageState extends State<VotingPage> {
       }
 
       final String nomineeGender = genderResponse['nominee_gender'];
-
-      print(nomineeGender);
 
       // Step 2: Check if the user has already voted for this gender within the last 30 minutes
       final checkResponse =

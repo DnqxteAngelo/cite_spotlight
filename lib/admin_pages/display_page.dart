@@ -77,8 +77,6 @@ class _DisplayPageState extends State<DisplayPage> {
           .from('tbl_nominees') // Use your actual table name
           .select();
 
-      print(response);
-
       if (response.isNotEmpty) {
         final List<dynamic> data = response;
         final now = DateTime.now().toUtc().add(Duration(hours: 8));
