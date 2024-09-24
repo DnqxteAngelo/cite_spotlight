@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1000),
+                    duration: Duration(milliseconds: 300),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: buttonPadding),
                       decoration: BoxDecoration(
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1100),
+                    duration: Duration(milliseconds: 400),
                     child: Text(
                       "Spotlight",
                       style: TextStyle(
@@ -173,7 +173,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1200),
+                    duration: Duration(milliseconds: 500),
                     child: Text(
                       "Who got the best face?",
                       style: TextStyle(
@@ -189,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: screenSize.height * 0.03),
             Expanded(
               child: FadeInUp(
-                duration: Duration(milliseconds: 1300),
+                duration: Duration(milliseconds: 600),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -205,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           SizedBox(height: 10),
                           FadeInLeft(
-                            duration: Duration(milliseconds: 1100),
+                            duration: Duration(milliseconds: 700),
                             child: Text(
                               "Login to your account",
                               style: TextStyle(
@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           SizedBox(height: screenSize.height * 0.03),
                           FadeInUp(
-                            duration: Duration(milliseconds: 1400),
+                            duration: Duration(milliseconds: 800),
                             child: Container(
                               width: isLargeScreen
                                   ? screenSize.width * 0.5
@@ -296,7 +296,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           SizedBox(height: screenSize.height * 0.08),
                           FadeInUp(
-                            duration: Duration(milliseconds: 1500),
+                            duration: Duration(milliseconds: 800),
                             child: SizedBox(
                               width: isLargeScreen
                                   ? screenSize.width * 0.3

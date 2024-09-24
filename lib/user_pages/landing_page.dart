@@ -118,7 +118,7 @@ class _LandingPageState extends State<LandingPage> {
               child: Column(
                 children: [
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1000),
+                    duration: Duration(milliseconds: 200),
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: buttonPadding,
@@ -144,7 +144,7 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1100),
+                    duration: Duration(milliseconds: 200),
                     child: Text(
                       "Spotlight",
                       style: TextStyle(
@@ -155,7 +155,7 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                   FadeInLeft(
-                    duration: Duration(milliseconds: 1200),
+                    duration: Duration(milliseconds: 300),
                     child: Text(
                       "Who got the best face?",
                       style: TextStyle(
@@ -170,7 +170,7 @@ class _LandingPageState extends State<LandingPage> {
             ),
             Expanded(
               child: FadeInUp(
-                duration: Duration(milliseconds: 1300),
+                duration: Duration(milliseconds: 400),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -193,7 +193,7 @@ class _LandingPageState extends State<LandingPage> {
                           shrinkWrap: true,
                           children: [
                             FadeInUp(
-                              duration: Duration(milliseconds: 1400),
+                              duration: Duration(milliseconds: 500),
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: OutlinedButton(
@@ -232,7 +232,7 @@ class _LandingPageState extends State<LandingPage> {
                               ),
                             ),
                             FadeInUp(
-                              duration: Duration(milliseconds: 1400),
+                              duration: Duration(milliseconds: 500),
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: ElevatedButton(
@@ -272,7 +272,7 @@ class _LandingPageState extends State<LandingPage> {
                               ),
                             ),
                             FadeInUp(
-                              duration: Duration(milliseconds: 1400),
+                              duration: Duration(milliseconds: 500),
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: ElevatedButton(
@@ -317,7 +317,7 @@ class _LandingPageState extends State<LandingPage> {
                               ),
                             ),
                             FadeInUp(
-                              duration: Duration(milliseconds: 1400),
+                              duration: Duration(milliseconds: 500),
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: OutlinedButton(

@@ -295,7 +295,7 @@ class _NominationPageState extends State<NominationPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   FadeInRight(
-                    duration: Duration(milliseconds: 1000),
+                    duration: Duration(milliseconds: 300),
                     child: IconButton(
                       onPressed: () {
                         Navigator.pop(context);
@@ -308,7 +308,7 @@ class _NominationPageState extends State<NominationPage> {
                     ),
                   ),
                   FadeInRight(
-                    duration: Duration(milliseconds: 1000),
+                    duration: Duration(milliseconds: 300),
                     child: Text(
                       'Time Remaining: ${_getNominationRemainingTime()}',
                       style: TextStyle(
@@ -323,7 +323,7 @@ class _NominationPageState extends State<NominationPage> {
               ),
             ),
             FadeInLeft(
-              duration: Duration(milliseconds: 1000),
+              duration: Duration(milliseconds: 300),
               child: Text(
                 "CITE Spotlight",
                 style: TextStyle(
@@ -334,7 +334,7 @@ class _NominationPageState extends State<NominationPage> {
               ),
             ),
             FadeInLeft(
-              duration: Duration(milliseconds: 1100),
+              duration: Duration(milliseconds: 400),
               child: Text(
                 "Who got the best face?",
                 style: TextStyle(
@@ -346,7 +346,7 @@ class _NominationPageState extends State<NominationPage> {
             ),
             SizedBox(height: screenSize.height * 0.03), // Responsive height
             FadeInLeft(
-              duration: Duration(milliseconds: 1200),
+              duration: Duration(milliseconds: 400),
               child: Text(
                 "Nominate someone pretty/handsome!",
                 style: TextStyle(
@@ -363,7 +363,7 @@ class _NominationPageState extends State<NominationPage> {
                   vertical: screenSize.height * 0.04, // 4% from top and bottom
                 ),
                 child: FadeInUp(
-                  duration: Duration(milliseconds: 1300),
+                  duration: Duration(milliseconds: 500),
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
@@ -393,7 +393,7 @@ class _NominationPageState extends State<NominationPage> {
                               );
                             }, // Handle image upload
                             child: FadeInUp(
-                              duration: Duration(milliseconds: 1500),
+                              duration: Duration(milliseconds: 600),
                               child: Container(
                                 width: double.infinity,
                                 height: screenSize.height *
@@ -445,7 +445,7 @@ class _NominationPageState extends State<NominationPage> {
                           ),
                           SizedBox(height: screenSize.height * 0.02),
                           FadeInUp(
-                            duration: Duration(milliseconds: 1400),
+                            duration: Duration(milliseconds: 700),
                             child: DropdownSearch<String>(
                               items: (f, cs) => _userNames,
                               decoratorProps: DropDownDecoratorProps(
@@ -508,7 +508,7 @@ class _NominationPageState extends State<NominationPage> {
                               height: screenSize.height *
                                   0.05), // Responsive height
                           FadeInUp(
-                            duration: Duration(milliseconds: 1700),
+                            duration: Duration(milliseconds: 700),
                             child: _isLoading
                                 ? Center(child: CircularProgressIndicator())
                                 : MaterialButton(

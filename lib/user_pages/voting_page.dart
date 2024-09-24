@@ -186,7 +186,7 @@ class _VotingPageState extends State<VotingPage> {
               ),
             ),
             FadeInUp(
-              duration: Duration(milliseconds: 1000),
+              duration: Duration(milliseconds: 500),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -258,7 +258,7 @@ class _VotingPageState extends State<VotingPage> {
           ),
           SizedBox(height: 10),
           FadeInLeft(
-            duration: Duration(milliseconds: 1000),
+            duration: Duration(milliseconds: 300),
             child: Text(
               "CITE Spotlight",
               style: TextStyle(
@@ -269,7 +269,7 @@ class _VotingPageState extends State<VotingPage> {
             ),
           ),
           FadeInLeft(
-            duration: Duration(milliseconds: 1100),
+            duration: Duration(milliseconds: 300),
             child: Text(
               "Who got the best face?",
               style: TextStyle(
@@ -281,7 +281,7 @@ class _VotingPageState extends State<VotingPage> {
           ),
           SizedBox(height: 25),
           FadeInLeft(
-            duration: Duration(milliseconds: 1200),
+            duration: Duration(milliseconds: 300),
             child: Text(
               title,
               style: TextStyle(
@@ -379,7 +379,13 @@ class _VotingPageState extends State<VotingPage> {
                                               child: Column(
                                                 children: [
                                                   Text(
-                                                    nominee.name!,
+                                                    nominee.name!
+                                                        .split(',')
+                                                        .last
+                                                        .trim()
+                                                        .split(' ')
+                                                        .take(2)
+                                                        .join(' '),
                                                     style: TextStyle(
                                                       fontSize:
                                                           MediaQuery.of(context)

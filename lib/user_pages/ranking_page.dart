@@ -195,7 +195,7 @@ class _RankingPageState extends State<RankingPage> {
               ),
             ),
             FadeInUp(
-              duration: Duration(milliseconds: 1000),
+              duration: Duration(milliseconds: 500),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -258,7 +258,7 @@ class _RankingPageState extends State<RankingPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 FadeInRight(
-                  duration: Duration(milliseconds: 1000),
+                  duration: Duration(milliseconds: 300),
                   child: IconButton(
                     onPressed: () {
                       Navigator.pop(context);
@@ -270,7 +270,7 @@ class _RankingPageState extends State<RankingPage> {
                   ),
                 ),
                 FadeInRight(
-                  duration: Duration(milliseconds: 1000),
+                  duration: Duration(milliseconds: 300),
                   child: Text(
                     'Time Remaining: ${_getVotingRemainingTime()}',
                     style: TextStyle(
@@ -284,7 +284,7 @@ class _RankingPageState extends State<RankingPage> {
             ),
           ),
           FadeInLeft(
-            duration: Duration(milliseconds: 1000),
+            duration: Duration(milliseconds: 300),
             child: Text(
               "CITE Spotlight",
               style: TextStyle(
@@ -295,7 +295,7 @@ class _RankingPageState extends State<RankingPage> {
             ),
           ),
           FadeInLeft(
-            duration: Duration(milliseconds: 1100),
+            duration: Duration(milliseconds: 400),
             child: Text(
               "Who got the best face?",
               style: TextStyle(
@@ -307,7 +307,7 @@ class _RankingPageState extends State<RankingPage> {
           ),
           SizedBox(height: 25),
           FadeInLeft(
-            duration: Duration(milliseconds: 1200),
+            duration: Duration(milliseconds: 500),
             child: Text(
               title,
               style: TextStyle(
@@ -447,8 +447,11 @@ class _RankingPageState extends State<RankingPage> {
                                           _getVotingRemainingTime() == "Ended"
                                               ? vote.name
                                                       ?.split(',')
-                                                      .first
-                                                      .trim() ??
+                                                      .last
+                                                      .trim()
+                                                      .split(' ')
+                                                      .take(2)
+                                                      .join(' ') ??
                                                   'No Name'
                                               : '?' *
                                                   (vote.name

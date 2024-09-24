@@ -244,7 +244,13 @@ class _DisplayPageState extends State<DisplayPage> {
                 padding: EdgeInsets.all(constraints.maxWidth * 0.01),
                 color: Colors.black.withOpacity(0.5),
                 child: Text(
-                  nominee.name!,
+                  nominee.name!
+                      .split(',')
+                      .last
+                      .trim()
+                      .split(' ')
+                      .take(2)
+                      .join(' '),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: constraints.maxWidth * 0.012,
