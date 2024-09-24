@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, prefer_const_constructors, unused_field, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_super_parameters
 
+import 'package:cite_spotlight/admin_pages/display_page.dart';
 import 'package:cite_spotlight/session/session_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -303,22 +304,22 @@ class _AdminPageState extends State<AdminPage> {
                 ),
               ),
               SizedBox(height: 50),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => DisplayPage()),
-              //     );
-              //   },
-              //   child: Text('Nominees Display'),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.white,
-              //     foregroundColor: Colors.green.shade800,
-              //     padding: EdgeInsets.symmetric(vertical: 15),
-              //     textStyle:
-              //         TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              //   ),
-              // ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DisplayPage()),
+                  );
+                },
+                child: Text('Nominees Display'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.green.shade800,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  textStyle:
+                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
               // SizedBox(height: 50),
               // ElevatedButton(
               //   onPressed: () {
