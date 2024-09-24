@@ -3,6 +3,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cite_spotlight/session/session_service.dart';
 import 'package:cite_spotlight/user_pages/nomination_page.dart';
+import 'package:cite_spotlight/user_pages/ranking_page.dart';
 import 'package:cite_spotlight/user_pages/voting_page.dart';
 import 'package:flutter/material.dart';
 
@@ -275,7 +276,13 @@ class _LandingPageState extends State<LandingPage> {
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => RankingPage()),
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green.shade600,
                                     // side: BorderSide(
