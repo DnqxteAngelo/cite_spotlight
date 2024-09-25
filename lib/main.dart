@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       // Handle any exceptions
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
+        SnackBar(content: Text('Incorrect Student ID or Password')),
       );
     }
   }

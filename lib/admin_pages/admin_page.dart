@@ -1,6 +1,7 @@
-// ignore_for_file: avoid_print, prefer_const_constructors, unused_field, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_super_parameters
+// ignore_for_file: avoid_print, prefer_const_constructors, unused_field, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_super_parameters, sort_child_properties_last
 
 import 'package:cite_spotlight/admin_pages/display_page.dart';
+import 'package:cite_spotlight/admin_pages/manage_nominees.dart';
 import 'package:cite_spotlight/session/session_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -221,25 +222,54 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        title: Text('Admin Page', style: TextStyle(color: Colors.white)),
+        title: Text('Admin Dashboard', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green.shade800,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.green.shade800,
+              ),
+              child: Text(
+                'Admin Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.people),
+              title: Text('Manage Nominees'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ManageNominees()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.visibility),
+              title: Text('Display Nominees'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DisplayPage()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.green.shade800,
-              Colors.green.shade600,
-              Colors.green.shade400,
-            ],
+            colors: [Colors.green.shade50, Colors.white],
           ),
         ),
         child: Padding(
@@ -247,105 +277,70 @@ class _AdminPageState extends State<AdminPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Nomination Time Remaining: ${_getNominationRemainingTime()}',
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+              _buildDashboardCard(
+                'Nomination',
+                _getNominationRemainingTime(),
+                _startNominationSession,
+                _endNominationSession,
               ),
-              SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: _startNominationSession,
-                child: Text('Start Nomination Session'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green.shade800,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+              SizedBox(height: 20),
+              _buildDashboardCard(
+                'Voting',
+                _getVotingRemainingTime(),
+                _startVotingSession,
+                _endVotingSession,
               ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _endNominationSession,
-                child: Text('End Nomination Session'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green.shade800,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 30),
-              Text(
-                'Voting Time Remaining: ${_getVotingRemainingTime()}',
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: _startVotingSession,
-                child: Text('Start Voting Session'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green.shade800,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _endVotingSession,
-                child: Text('End Voting Session'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green.shade800,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 50),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => DisplayPage()),
-                  );
-                },
-                child: Text('Nominees Display'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.green.shade800,
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-              // SizedBox(height: 50),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => CheckNominees()),
-              //     );
-              //   },
-              //   child: Text('Manage Nominees'),
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor: Colors.white,
-              //     foregroundColor: Colors.green.shade800,
-              //     padding: EdgeInsets.symmetric(vertical: 15),
-              //     textStyle:
-              //         TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              //   ),
-              // ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardCard(String title, String remainingTime,
+      VoidCallback startSession, VoidCallback endSession) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Time Remaining: $remainingTime',
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  icon: Icon(Icons.play_arrow),
+                  label: Text('Start'),
+                  onPressed: startSession,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.stop),
+                  label: Text('End'),
+                  onPressed: endSession,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

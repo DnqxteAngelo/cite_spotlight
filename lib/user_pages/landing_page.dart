@@ -147,7 +147,7 @@ class _LandingPageState extends State<LandingPage> {
           title: Text(
             "Confirm Logout",
             style: TextStyle(
-              color: Colors.red.shade600, // Title color
+              color: Colors.red.shade400, // Title color
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -161,7 +161,7 @@ class _LandingPageState extends State<LandingPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0), // Rounded corners
             side: BorderSide(
-              color: Colors.red.shade700, // Border color
+              color: Colors.red.shade400, // Border color
               width: 2, // Border width
             ),
           ),
@@ -189,7 +189,7 @@ class _LandingPageState extends State<LandingPage> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    Colors.red.shade600, // Background color of the button
+                    Colors.red.shade400, // Background color of the button
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0), // Rounded corners
                 ),

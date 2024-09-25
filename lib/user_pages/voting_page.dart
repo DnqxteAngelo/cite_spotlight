@@ -86,8 +86,7 @@ class _VotingPageState extends State<VotingPage> {
         final List<dynamic> data = response;
         final now = DateTime.now().toUtc().add(Duration(hours: 8));
         final oneHourAgo = now.subtract(Duration(hours: 1));
-        print(now);
-        print(oneHourAgo);
+
         setState(() {
           nominees = data
               .map((json) => Nominees.fromJson(json))
@@ -364,9 +363,12 @@ class _VotingPageState extends State<VotingPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                               ),
-                                              child: Image.network(
-                                                nominee.imageUrl!,
-                                                fit: BoxFit.cover,
+                                              child: AspectRatio(
+                                                aspectRatio: 3 / 4,
+                                                child: Image.network(
+                                                  nominee.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
                                             SizedBox(height: 10),
