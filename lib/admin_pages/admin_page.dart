@@ -58,7 +58,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _startNominationSession() async {
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final endTime = now.add(Duration(minutes: 15));
     Map<String, dynamic> data = {
       'session_nominationStart': now.toIso8601String(),
@@ -84,7 +84,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _startVotingSession() async {
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final endTime = now.add(Duration(minutes: 45));
     Map<String, dynamic> data = {
       'session_votingStart': now.toIso8601String(),
@@ -165,8 +165,15 @@ class _AdminPageState extends State<AdminPage> {
       }
 
       if ((_nominationEndTime == null ||
-              DateTime.now().isAfter(_nominationEndTime!)) &&
-          (_votingEndTime == null || DateTime.now().isAfter(_votingEndTime!))) {
+              DateTime.now()
+                  .toUtc()
+                  .add(Duration(hours: 8))
+                  .isAfter(_nominationEndTime!)) &&
+          (_votingEndTime == null ||
+              DateTime.now()
+                  .toUtc()
+                  .add(Duration(hours: 8))
+                  .isAfter(_votingEndTime!))) {
         timer.cancel();
       }
 
@@ -177,7 +184,7 @@ class _AdminPageState extends State<AdminPage> {
   String _getNominationRemainingTime() {
     if (_nominationEndTime == null) return "No Session";
 
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final difference = _nominationEndTime!.difference(now);
 
     if (difference.isNegative) {
@@ -195,7 +202,7 @@ class _AdminPageState extends State<AdminPage> {
   String _getVotingRemainingTime() {
     if (_votingEndTime == null) return "No Session";
 
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final difference = _votingEndTime!.difference(now);
 
     if (difference.isNegative) {

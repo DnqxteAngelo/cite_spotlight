@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_print
+// ignore_for_file: prefer_const_constructors, avoid_print, use_build_context_synchronously
 
 import 'dart:async';
 
@@ -66,7 +66,7 @@ class _DisplayPageState extends State<DisplayPage> {
 
       if (_getVotingRemainingTime() == "Ended") {
         _timer?.cancel();
-        Navigator.pop(context);
+        _showWinnersDialog();
       }
     });
   }
@@ -80,7 +80,7 @@ class _DisplayPageState extends State<DisplayPage> {
       if (response.isNotEmpty) {
         final List<dynamic> data = response;
         final now = DateTime.now().toUtc().add(Duration(hours: 8));
-        final oneHourAgo = now.subtract(Duration(days: 1));
+        final oneHourAgo = now.subtract(Duration(hours: 1));
         setState(() {
           nominees = data
               .map((json) => Nominees.fromJson(json))
@@ -98,6 +98,220 @@ class _DisplayPageState extends State<DisplayPage> {
     } catch (e) {
       print('Error: $e');
     }
+  }
+
+// Function to get the winners from the Supabase database
+  Future<void> _showWinnersDialog() async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // Query to get the female nominees with vote counts
+      final femaleResponse = await supabase.from('tbl_nominees').select('''
+            nominee_id, 
+            nominee_name, 
+            nominee_image, 
+            nominee_gender,
+            vote_count:tbl_votes(count)
+        ''').eq('nominee_gender', 'Female');
+
+      // Query to get the male nominees with vote counts
+      final maleResponse = await supabase.from('tbl_nominees').select('''
+            nominee_id, 
+            nominee_name, 
+            nominee_image, 
+            nominee_gender,
+            vote_count:tbl_votes(count)
+        ''').eq('nominee_gender', 'Male');
+
+      if (femaleResponse.isNotEmpty && maleResponse.isNotEmpty) {
+        // Find the female and male winners (assuming highest vote count wins)
+        final femaleData = femaleResponse.reduce((curr, next) =>
+            (curr['vote_count'] as List).first['count'] >
+                    (next['vote_count'] as List).first['count']
+                ? curr
+                : next);
+        final maleData = maleResponse.reduce((curr, next) =>
+            (curr['vote_count'] as List).first['count'] >
+                    (next['vote_count'] as List).first['count']
+                ? curr
+                : next);
+
+        print(femaleData);
+        print(maleData);
+
+        final femaleWinnerId = femaleData['nominee_id'];
+        final maleWinnerId = maleData['nominee_id'];
+
+        // Extract the vote counts as integers
+        final femaleVotes =
+            (femaleData['vote_count'] as List).first['count'] as int;
+        final maleVotes =
+            (maleData['vote_count'] as List).first['count'] as int;
+
+        // Rest of the function remains the same...
+        final now =
+            DateTime.now().toUtc().add(Duration(hours: 8)).toIso8601String();
+        final insertResponse = await supabase.from('tbl_winners').insert({
+          'winner_femaleid': femaleWinnerId,
+          'winner_maleid': maleWinnerId,
+          'winner_time': now,
+        });
+
+        if (insertResponse == null) {
+          // Show winners dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isSmallScreen = constraints.maxWidth < 600;
+                    return Container(
+                      width: isSmallScreen ? constraints.maxWidth * 0.9 : 500,
+                      padding: EdgeInsets.all(isSmallScreen ? 20 : 30),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.green.shade400,
+                            Colors.green.shade800
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Voting Session Ended',
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 24 : 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: isSmallScreen ? 15 : 20),
+                            Text(
+                              'The winners are:',
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 18 : 22,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: isSmallScreen ? 15 : 20),
+                            Flex(
+                              direction: isSmallScreen
+                                  ? Axis.vertical
+                                  : Axis.horizontal,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildWinnerCard(
+                                  femaleData['nominee_image'],
+                                  femaleData['nominee_name'],
+                                  femaleVotes,
+                                  'Female',
+                                  isSmallScreen,
+                                ),
+                                if (!isSmallScreen) SizedBox(width: 10),
+                                if (isSmallScreen) SizedBox(height: 10),
+                                _buildWinnerCard(
+                                  maleData['nominee_image'],
+                                  maleData['nominee_name'],
+                                  maleVotes,
+                                  'Male',
+                                  isSmallScreen,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: isSmallScreen ? 15 : 20),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.green.shade800,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isSmallScreen ? 30 : 40,
+                                  vertical: isSmallScreen ? 10 : 15,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(
+                                'OK',
+                                style: TextStyle(
+                                    fontSize: isSmallScreen ? 16 : 18),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        } else {
+          print('Error adding winners to tbl_winners');
+        }
+      } else {
+        print('Error fetching winners.');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Widget _buildWinnerCard(String imageUrl, String name, int votes,
+      String category, bool isSmallScreen) {
+    return Container(
+      width: isSmallScreen ? double.infinity : 200,
+      padding: EdgeInsets.all(isSmallScreen ? 10 : 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: isSmallScreen ? 40 : 50,
+            backgroundImage: NetworkImage(imageUrl),
+          ),
+          SizedBox(height: 10),
+          Text(
+            name.split(',').last.trim().split(' ').take(2).join(' '),
+            style: TextStyle(
+              fontSize: isSmallScreen ? 16 : 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            '$category Winner',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 14 : 16,
+              color: Colors.grey[600],
+            ),
+          ),
+          Text(
+            'Votes: $votes',
+            style: TextStyle(
+              fontSize: isSmallScreen ? 14 : 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

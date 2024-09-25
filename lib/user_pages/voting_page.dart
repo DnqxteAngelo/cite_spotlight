@@ -85,7 +85,9 @@ class _VotingPageState extends State<VotingPage> {
       if (response.isNotEmpty) {
         final List<dynamic> data = response;
         final now = DateTime.now().toUtc().add(Duration(hours: 8));
-        final oneHourAgo = now.subtract(Duration(days: 1));
+        final oneHourAgo = now.subtract(Duration(hours: 1));
+        print(now);
+        print(oneHourAgo);
         setState(() {
           nominees = data
               .map((json) => Nominees.fromJson(json))

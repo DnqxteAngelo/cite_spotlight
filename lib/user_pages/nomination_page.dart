@@ -210,7 +210,7 @@ class _NominationPageState extends State<NominationPage> {
 
       // Step 2: Upload image to Supabase storage
       final String imageName =
-          '${userName}_${DateTime.now().millisecondsSinceEpoch}.png';
+          '${userName}_${DateTime.now().toUtc().add(Duration(hours: 8)).millisecondsSinceEpoch}.png';
       final String imagePath = imageName;
 
       await _supabaseClient.storage.from('nominee-images').uploadBinary(
@@ -397,7 +397,7 @@ class _NominationPageState extends State<NominationPage> {
                               child: Container(
                                 width: double.infinity,
                                 height: screenSize.height *
-                                    0.25, // Responsive height
+                                    0.40, // Responsive height
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(
@@ -435,9 +435,12 @@ class _NominationPageState extends State<NominationPage> {
                                             ),
                                           ],
                                         )
-                                      : Image.memory(
-                                          _imageBytes!,
-                                          fit: BoxFit.cover,
+                                      : AspectRatio(
+                                          aspectRatio: 3 / 4,
+                                          child: Image.memory(
+                                            _imageBytes!,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
                                 ),
                               ),
@@ -503,10 +506,6 @@ class _NominationPageState extends State<NominationPage> {
                           SizedBox(
                               height: screenSize.height *
                                   0.02), // Responsive height
-                          // Responsive height
-                          SizedBox(
-                              height: screenSize.height *
-                                  0.05), // Responsive height
                           FadeInUp(
                             duration: Duration(milliseconds: 700),
                             child: _isLoading

@@ -75,6 +75,13 @@ class _LoginPageState extends State<LoginPage> {
         final userName = response['user_name'];
         final userId = response['user_id'];
 
+        studentIdController.clear();
+        passwordController.clear();
+
+        setState(() {
+          _obscurePassword = true;
+        });
+
         // Check if the user is admin
         if (studentId == "admin") {
           // Navigate to AdminPage

@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, avoid_print, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, avoid_print, use_key_in_widget_constructors, use_build_context_synchronously
 
 import 'package:animate_do/animate_do.dart';
 import 'package:cite_spotlight/session/session_service.dart';
+import 'package:cite_spotlight/user_pages/about_page.dart';
 import 'package:cite_spotlight/user_pages/nomination_page.dart';
 import 'package:cite_spotlight/user_pages/ranking_page.dart';
 import 'package:cite_spotlight/user_pages/voting_page.dart';
+import 'package:cite_spotlight/user_pages/winner_page.dart';
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatefulWidget {
@@ -89,6 +91,123 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
+  Future<void> _handleRankingButtonPressed() async {
+    await _checkSessionStatus();
+
+    if (_isVotingSessionActive) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RankingPage()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("The voting hasn't started yet, cannot show rankings."),
+        ),
+      );
+    }
+  }
+
+  void _showPopupMenu(BuildContext context) async {
+    final result = await showMenu(
+      context: context,
+      position:
+          RelativeRect.fromLTRB(100, 60, 0, 0), // Adjust position as needed
+      items: [
+        PopupMenuItem(
+          value: 'about',
+          child: Text('About'),
+        ),
+        PopupMenuItem(
+          value: 'logout',
+          child: Text('Logout'),
+        ),
+      ],
+    );
+
+    switch (result) {
+      case 'about':
+        // Navigate to About page
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => AboutPage()));
+        break;
+      case 'logout':
+        _showLogoutConfirmationDialog();
+        break;
+      default:
+        break;
+    }
+  }
+
+  void _showLogoutConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Confirm Logout",
+            style: TextStyle(
+              color: Colors.red.shade600, // Title color
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Text(
+            "Are you sure you want to log out?",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0), // Rounded corners
+            side: BorderSide(
+              color: Colors.red.shade700, // Border color
+              width: 2, // Border width
+            ),
+          ),
+          backgroundColor: Colors.white, // Background color
+          elevation: 10, // Elevation for shadow effect
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text(
+                "Cancel",
+                style: TextStyle(
+                  color: Colors.grey, // Cancel button color
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Add your logout logic here
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context)
+                    .pop(); // Navigate back to the previous screen
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Colors.red.shade600, // Background color of the button
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                ),
+              ),
+              child: Text(
+                "Logout",
+                style: TextStyle(
+                  color: Colors.white, // Text color
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -96,6 +215,70 @@ class _LandingPageState extends State<LandingPage> {
         screenSize.width * 0.4; // Adjust button size based on screen width
     final buttonPadding = screenSize.width * 0.03;
     return Scaffold(
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: PopupMenuButton(
+          icon: Icon(
+            Icons.menu,
+            color: Colors.white,
+          ),
+          color: Colors.white,
+          onSelected: (value) {
+            if (value == 'about') {
+              // Navigate to the About page
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AboutPage()));
+            } else if (value == 'logout') {
+              _showLogoutConfirmationDialog();
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'about',
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_rounded,
+                    color: Colors.green.shade600,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "About",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'logout',
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.logout,
+                    color: Colors.red.shade600,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "Logout",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -276,13 +459,7 @@ class _LandingPageState extends State<LandingPage> {
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => RankingPage()),
-                                    );
-                                  },
+                                  onPressed: _handleRankingButtonPressed,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green.shade600,
                                     // side: BorderSide(
@@ -321,7 +498,13 @@ class _LandingPageState extends State<LandingPage> {
                               child: Padding(
                                 padding: EdgeInsets.all(buttonPadding),
                                 child: OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => WinnerPage()),
+                                    );
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     side: BorderSide(
                                         width: 4.0,

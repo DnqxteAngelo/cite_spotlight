@@ -114,10 +114,14 @@ class _RankingPageState extends State<RankingPage> {
 
     if (response != null && response.isNotEmpty) {
       final data = response as List;
+      final now = DateTime.now().toUtc().add(Duration(hours: 8));
+      final oneHourAgo = now.subtract(Duration(hours: 1));
 
       setState(() {
         votes = data
             .map((json) => Votes.fromJson(json))
+            .where(
+                (vote) => vote.time != null && vote.time!.isAfter(oneHourAgo))
             .toList(); // Update Votes.fromJson as needed
       });
     } else {
