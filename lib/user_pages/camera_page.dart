@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_final_fields, library_private_types_in_public_api, prefer_const_constructors, use_build_context_synchronously, curly_braces_in_flow_control_structures, unused_import, use_super_parameters
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, curly_braces_in_flow_control_structures, unused_import
 
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:camera_web/camera_web.dart'; // Import camera_web for web
+import 'dart:math';
 
 class CameraPage extends StatefulWidget {
   final Function(Uint8List) onImageSelected; // Callback to pass the image data
@@ -20,6 +21,10 @@ class _CameraPageState extends State<CameraPage> {
   late Future<void> _initializeControllerFuture;
   List<CameraDescription>? _cameras;
   int _selectedCameraIndex = 0;
+  double _currentZoomLevel = 1.0; // Track current zoom level
+  double _minZoomLevel = 1.0; // Minimum zoom
+  double _maxZoomLevel = 1.0; // Maximum zoom (default 1.0 if not supported)
+  bool _isZoomSupported = true; // Track if zoom is supported
 
   @override
   void initState() {
@@ -28,14 +33,33 @@ class _CameraPageState extends State<CameraPage> {
   }
 
   Future<void> _initCamera() async {
-    _cameras = await availableCameras();
-    _controller = CameraController(
-      _cameras![_selectedCameraIndex],
-      ResolutionPreset.high,
-    );
+    try {
+      _cameras = await availableCameras();
+      _controller = CameraController(
+        _cameras![_selectedCameraIndex],
+        ResolutionPreset.high,
+      );
 
-    _initializeControllerFuture = _controller.initialize();
-    setState(() {});
+      _initializeControllerFuture = _controller.initialize().then((_) async {
+        try {
+          // Attempt to get the zoom range of the camera
+          _minZoomLevel = await _controller.getMinZoomLevel();
+          _maxZoomLevel = await _controller.getMaxZoomLevel();
+          setState(() {
+            _isZoomSupported = true; // Zoom is supported
+          });
+        } catch (e) {
+          // If any error occurs while getting zoom levels, disable zoom
+          setState(() {
+            _isZoomSupported = false; // Zoom is not supported
+          });
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error initializing camera: $e')),
+      );
+    }
   }
 
   Future<void> _takePicture() async {
@@ -96,6 +120,24 @@ class _CameraPageState extends State<CameraPage> {
     super.dispose();
   }
 
+  // Update zoom level based on pinch gestures
+  void _handleScaleUpdate(ScaleUpdateDetails details) async {
+    if (_controller.value.isInitialized && _isZoomSupported) {
+      try {
+        double newZoomLevel = _currentZoomLevel * details.scale;
+        newZoomLevel = max(_minZoomLevel, min(newZoomLevel, _maxZoomLevel));
+        await _controller.setZoomLevel(newZoomLevel);
+        setState(() {
+          _currentZoomLevel = newZoomLevel;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Zoom not supported by the camera')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,48 +166,54 @@ class _CameraPageState extends State<CameraPage> {
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _cameras == null
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : FutureBuilder<void>(
-                              future: _initializeControllerFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return Container(
-                                    width: double.infinity,
-                                    height: constraints.maxHeight * 0.7,
-                                    child: CameraPreview(_controller),
-                                  );
-                                } else if (snapshot.hasError) {
-                                  return Center(
-                                    child: Text(
-                                      'Error: ${snapshot.error}',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: constraints.maxWidth * 0.04,
+                  child: GestureDetector(
+                    onScaleUpdate: _isZoomSupported
+                        ? _handleScaleUpdate
+                        : null, // Enable pinch only if zoom is supported
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _cameras == null
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                ),
+                              )
+                            : FutureBuilder<void>(
+                                future: _initializeControllerFuture,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    return Container(
+                                      width: double.infinity,
+                                      height: constraints.maxHeight * 0.7,
+                                      child: CameraPreview(_controller),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text(
+                                        'Error: ${snapshot.error}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: constraints.maxWidth * 0.04,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                } else {
-                                  return Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                    ],
+                                    );
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                      ],
+                    ),
                   ),
                 ),
                 Padding(
