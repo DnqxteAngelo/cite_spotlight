@@ -42,7 +42,7 @@ class _DisplayPageState extends State<DisplayPage> {
   }
 
   String _getVotingRemainingTime() {
-    if (_votingEndTime == null) return "Ended";
+    if (_votingEndTime == null) return "No session";
 
     final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final difference = _votingEndTime!.difference(now);

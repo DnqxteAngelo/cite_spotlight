@@ -509,7 +509,10 @@ class _NominationPageState extends State<NominationPage> {
                           FadeInUp(
                             duration: Duration(milliseconds: 700),
                             child: _isLoading
-                                ? Center(child: CircularProgressIndicator())
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                    color: Colors.green.shade600,
+                                  ))
                                 : MaterialButton(
                                     onPressed: _addNominee,
                                     height: screenSize.height *
