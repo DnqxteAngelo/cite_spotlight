@@ -30,6 +30,7 @@ class _DisplayPageState extends State<DisplayPage> {
     fetchNominees();
     _loadVotingTimes();
     _getVotingRemainingTime();
+    _startSessionCheckTimer();
     _startTimer();
   }
 
@@ -41,7 +42,7 @@ class _DisplayPageState extends State<DisplayPage> {
   }
 
   String _getVotingRemainingTime() {
-    if (_votingEndTime == null) return "No Session";
+    if (_votingEndTime == null) return "Ended";
 
     final now = DateTime.now().toUtc().add(Duration(hours: 8));
     final difference = _votingEndTime!.difference(now);
@@ -66,6 +67,17 @@ class _DisplayPageState extends State<DisplayPage> {
 
       if (_getVotingRemainingTime() == "Ended") {
         _timer?.cancel();
+        _showWinnersDialog();
+      }
+    });
+  }
+
+  void _startSessionCheckTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if (!mounted) return;
+      bool isVotingActive = await _sessionService.isWithinVotingSession();
+
+      if (!isVotingActive) {
         _showWinnersDialog();
       }
     });
@@ -105,23 +117,40 @@ class _DisplayPageState extends State<DisplayPage> {
     try {
       final supabase = Supabase.instance.client;
 
-      // Query to get the female nominees with vote counts
-      final femaleResponse = await supabase.from('tbl_nominees').select('''
-            nominee_id, 
-            nominee_name, 
-            nominee_image, 
-            nominee_gender,
-            vote_count:tbl_votes(count)
-        ''').eq('nominee_gender', 'Female');
+      // Get the current UTC time and subtract 45 minutes
+      final DateTime now = DateTime.now().toUtc().add(Duration(hours: 8));
+      final DateTime fortyFiveMinutesAgo = now.subtract(Duration(minutes: 45));
 
-      // Query to get the male nominees with vote counts
-      final maleResponse = await supabase.from('tbl_nominees').select('''
-            nominee_id, 
-            nominee_name, 
-            nominee_image, 
-            nominee_gender,
-            vote_count:tbl_votes(count)
-        ''').eq('nominee_gender', 'Male');
+      // Format the time as ISO 8601 to use in the query
+      final String fortyFiveMinutesAgoIso =
+          fortyFiveMinutesAgo.toIso8601String();
+
+      // Query to get the female nominee with the highest votes in the last 45 minutes
+      final femaleResponse = await supabase
+          .from('tbl_nominees')
+          .select('''
+          nominee_id, 
+          nominee_name, 
+          nominee_image, 
+          nominee_gender,
+          vote_count:tbl_votes(count)
+      ''')
+          .eq('nominee_gender', 'Female')
+          .gte('nominee_time',
+              fortyFiveMinutesAgoIso); // Only fetch nominees from the last 45 minutes
+
+      // Query to get the male nominee with the highest votes in the last 45 minutes
+      final maleResponse = await supabase
+          .from('tbl_nominees')
+          .select('''
+          nominee_id, 
+          nominee_name, 
+          nominee_image, 
+          nominee_gender,
+          vote_count:tbl_votes(count)
+      ''')
+          .eq('nominee_gender', 'Male')
+          .gte('nominee_time', fortyFiveMinutesAgoIso);
 
       if (femaleResponse.isNotEmpty && maleResponse.isNotEmpty) {
         // Find the female and male winners (assuming highest vote count wins)
